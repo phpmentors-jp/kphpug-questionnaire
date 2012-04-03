@@ -4,14 +4,22 @@
  # All rights reserved.
  #}
 
-<h2>回答のご確認</h2>
+{% extends "KPHPUGQuestionnaireBundle:Answer:layout.html.twig" %}
 
-<form action="{{ path('kphpug_questionnaire_answer_confirmationpost') }}" method="post" {{ form_enctype(form) }}>
-  {{ form_widget(form) }}
+{% block title %}{{ parent() }}回答のご確認{% endblock %}
 
-  <input type="submit" name="prev" value="修正する" />
-  <input type="submit" name="next" value="送信する" />
-</form>
+{% block content %}
+  <h2>回答のご確認</h2>
+
+  <div>
+    <form action="{{ path('kphpug_questionnaire_answer_confirmationpost') }}" method="post" {{ form_enctype(form) }}>
+    {{ form_widget(form) }}
+
+      <input type="submit" name="prev" value="修正する" />
+      <input type="submit" name="next" value="送信する" />
+    </form>
+  </div>
+{% endblock %}
 
 {#
  # Local Variables:

@@ -4,9 +4,15 @@
  # All rights reserved.
  #}
 
-<h2>回答完了</h2>
+{% extends "KPHPUGQuestionnaireBundle:Answer:layout.html.twig" %}
 
-<p>アンケートにご協力いただきありがとうございました。</p>
+{% block title %}{{ parent() }}回答完了{% endblock %}
+
+{% block content %}
+  <h2>回答完了</h2>
+
+  <p>アンケートにご協力いただきありがとうございました。</p>
+{% endblock %}
 
 {#
  # Local Variables:
