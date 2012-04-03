@@ -1,0 +1,25 @@
+{#
+ # Copyright (c) 2012 GOTO Hidenori <hidenorigoto@gmail.com>,
+ #               2012 KUBO Atsuhiro <kubo@iteman.jp>,
+ # All rights reserved.
+ #}
+
+<h2>回答のご確認</h2>
+
+<form action="{{ path('kphpug_questionnaire_answer_confirmationpost') }}" method="post" {{ form_enctype(form) }}>
+  {{ form_widget(form) }}
+
+  <input type="submit" name="prev" value="修正する" />
+  <input type="submit" name="next" value="送信する" />
+</form>
+
+{#
+ # Local Variables:
+ # mode: php
+ # coding: utf-8
+ # tab-width: 4
+ # c-basic-offset: 4
+ # c-hanging-comment-ender-p: nil
+ # indent-tabs-mode: nil
+ # End:
+ #}

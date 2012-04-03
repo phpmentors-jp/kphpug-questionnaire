@@ -38,6 +38,7 @@
 
 namespace KPHPUG\QuestionnaireBundle\Controller;
 
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
@@ -52,12 +53,72 @@ use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 class AnswerController extends Controller
 {
     /**
-     * @Route("/hello/{name}")
-     * @Template()
+     * @Route("/input")
+     * @Method("GET")
      */
-    public function indexAction($name)
+    public function inputAction()
     {
-        return array('name' => $name);
+        return $this->render('KPHPUGQuestionnaireBundle:Answer:input.html.twig', array(
+            'form' => $this->createFormBuilder()->getForm()->createView(),
+        ));
+    }
+
+    /**
+     * @Route("/input")
+     * @Method("POST")
+     */
+    public function inputPostAction()
+    {
+        $form = $this->createFormBuilder()->getForm();
+        $form->bindRequest($this->getRequest());
+        if ($form->isValid()) {
+            return $this->redirect($this->generateUrl('kphpug_questionnaire_answer_confirmation', array(), true));
+        } else {
+            return $this->render('KPHPUGQuestionnaireBundle:Answer:input.html.twig', array(
+                'form' => $form->createView(),
+            ));
+        }
+    }
+
+    /**
+     * @Route("/confirmation")
+     * @Method("GET")
+     */
+    public function confirmationAction()
+    {
+        return $this->render('KPHPUGQuestionnaireBundle:Answer:confirmation.html.twig', array(
+            'form' => $this->createFormBuilder()->getForm()->createView(),
+        ));
+    }
+
+    /**
+     * @Route("/confirmation")
+     * @Method("POST")
+     */
+    public function confirmationPostAction()
+    {
+        $form = $this->createFormBuilder()->getForm();
+        $form->bindRequest($this->getRequest());
+        if ($form->isValid()) {
+            if ($this->getRequest()->request->has('prev')) {
+                return $this->redirect($this->generateUrl('kphpug_questionnaire_answer_input', array(), true));
+            }
+
+            return $this->redirect($this->generateUrl('kphpug_questionnaire_answer_success', array(), true));
+        } else {
+            return $this->render('KPHPUGQuestionnaireBundle:Answer:confirmation.html.twig', array(
+                'form' => $form->createView(),
+            ));
+        }
+    }
+
+    /**
+     * @Route("/success")
+     * @Method("GET")
+     */
+    public function successAction()
+    {
+        return $this->render('KPHPUGQuestionnaireBundle:Answer:success.html.twig');
     }
 }
 
