@@ -49,6 +49,13 @@ use Doctrine\ORM\EntityRepository;
  */
 class QuestionnaireItemRepository extends EntityRepository
 {
+    /**
+     * @param \KPHPUG\QuestionnaireBundle\Domain\Entity\QuestionnaireItem $questionnaireItem
+     */
+    public function add(QuestionnaireItem $questionnaireItem)
+    {
+        $this->getEntityManager()->persist($questionnaireItem);
+    }
 }
 
 /*
