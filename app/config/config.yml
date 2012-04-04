@@ -47,6 +47,11 @@ doctrine:
     orm:
         auto_generate_proxy_classes: %kernel.debug%
         auto_mapping: true
+        mappings:
+            KPHPUGQuestionnaireBundle:
+                type: annotation
+                dir: Domain/Entity
+                prefix: KPHPUG\QuestionnaireBundle\Domain\Entity
 
 # Swiftmailer Configuration
 swiftmailer:
