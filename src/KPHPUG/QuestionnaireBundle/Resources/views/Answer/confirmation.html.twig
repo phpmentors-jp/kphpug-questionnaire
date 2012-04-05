@@ -12,6 +12,16 @@
   <h2>回答のご確認</h2>
 
   <div class="well">
+    <table class="table table-striped container">
+      <thead>
+        <tr><th class="span3">設問</th><th>回答</th></tr>
+      </thead>
+      <tbody>
+        {% for answerDetail in answer.answerDetails %}
+          <tr><td>{{ answerDetail.questionnaireItem.text }}</td><td>{{ answerDetail.input }}</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
     <form action="{{ path('kphpug_questionnaire_answer_confirmationpost') }}" method="post" {{ form_enctype(form) }}>
       <div class="form-actions">
         <button type="submit" class="btn" name="prev"><b>修正する</b></button>

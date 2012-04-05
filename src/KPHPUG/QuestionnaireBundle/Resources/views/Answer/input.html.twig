@@ -11,11 +11,47 @@
 {% block content %}
   <h2>回答のご入力</h2>
 
+  {% if formErrors %}<p><code>回答に不備があります</code></p>{% endif %}
+  <p><code>*</code>は必須項目</p>
   <div class="well">
     <form action="{{ path('kphpug_questionnaire_answer_inputpost') }}" method="post" {{ form_enctype(form) }}>
-      <div class="form-actions">
-        <button class="btn btn-primary span1" type="submit" name="next"><b>次へ</b></button>
-      </div>
+      <fieldset>
+        {% for answerDetail in form.answerDetails %}
+
+          {% if
+            answerDetail.parent.vars.value[loop.index0].questionnaireItem.answerType == constant('KPHPUG\\QuestionnaireBundle\\Domain\\Entity\\QuestionnaireItem::ANSWER_TYPE_REVIEW')
+            or answerDetail.parent.vars.value[loop.index0].questionnaireItem.answerType == constant('KPHPUG\\QuestionnaireBundle\\Domain\\Entity\\QuestionnaireItem::ANSWER_TYPE_WISH')
+          %}
+            <div class="control-group{% if answerDetail.vars.errors|length > 0 %} error{% endif %}">
+              <label class="control-label">{{ answerDetail.vars.label }}{% if answerDetail.vars.required %}<code>*</code>{% endif %}</label>
+              <div class="controls">
+                {% for reviewOption in answerDetail %}
+                  <label class="radio inline" for="{{ reviewOption.vars.id }}">{{ form_widget(reviewOption) }}{{ reviewOption.vars.label }}</label>
+                {% endfor %}
+                {% if answerDetail.vars.errors|length > 0 %}
+                  <span class="help-inline">{{ answerDetail.vars.errors[0].messageTemplate|trans(answerDetail.vars.errors[0].messageParameters, 'validators') }}</span>
+                {% endif %}
+              </div>
+            </div>
+          {% elseif answerDetail.parent.vars.value[loop.index0].questionnaireItem.answerType == constant('KPHPUG\\QuestionnaireBundle\\Domain\\Entity\\QuestionnaireItem::ANSWER_TYPE_TEXT') %}
+            <div class="control-group{% if answerDetail.vars.errors|length > 0 %} error{% endif %}">
+              <label class="control-label" for="{{ answerDetail.vars.id }}">{{ answerDetail.vars.label }}{% if answerDetail.vars.required %}<code>*</code>{% endif %}</label>
+              <div class="controls">
+                {{ form_widget(answerDetail, { 'attr': {'class': 'input-medium'} }) }}
+                {% if answerDetail.vars.errors|length > 0 %}
+                  <span class="help-inline">{{ answerDetail.vars.errors[0].messageTemplate|trans(answerDetail.vars.errors[0].messageParameters, 'validators') }}</span>
+                {% endif %}
+              </div>
+            </div>
+          {% endif %}
+
+        {% endfor %}
+
+        <div class="form-actions">
+          <button class="btn btn-primary span1" type="submit" name="next"><b>次へ</b></button>
+        </div>
+      </fieldset>
+
       {{ form_rest(form) }}
     </form>
   </div>

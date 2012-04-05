@@ -43,6 +43,9 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 
+use KPHPUG\QuestionnaireBundle\Domain\Entity\AnswerFactory;
+use KPHPUG\QuestionnaireBundle\Form\Type\AnswerType;
+
 /**
  * @package    KPHPUGQuestionnaireBundle
  * @copyright  2012 GOTO Hidenori <hidenorigoto@gmail.com>
@@ -53,13 +56,33 @@ use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 class AnswerController extends Controller
 {
     /**
+     * @Route("/")
+     * @Method("GET")
+     */
+    public function preparationAction()
+    {
+        $answerFactory = new AnswerFactory();
+        $answer = $answerFactory->create(
+            $this->get('doctrine')
+                ->getEntityManager()
+                ->getRepository('KPHPUG\QuestionnaireBundle\Domain\Entity\QuestionnaireItem')
+                ->findBy(array(), array('itemNumber' => 'ASC'))
+        );
+
+        $this->get('session')->set('answer', $answer);
+
+        return $this->forward('KPHPUGQuestionnaireBundle:Answer:input');
+    }
+
+    /**
      * @Route("/input")
      * @Method("GET")
      */
     public function inputAction()
     {
         return $this->render('KPHPUGQuestionnaireBundle:Answer:input.html.twig', array(
-            'form' => $this->createFormBuilder()->getForm()->createView(),
+            'form' => $this->createForm(new AnswerType(), $this->get('session')->get('answer'))->createView(),
+            'formErrors' => false,
         ));
     }
 
@@ -69,13 +92,14 @@ class AnswerController extends Controller
      */
     public function inputPostAction()
     {
-        $form = $this->createFormBuilder()->getForm();
+        $form = $this->createForm(new AnswerType(), $this->get('session')->get('answer'));
         $form->bindRequest($this->getRequest());
         if ($form->isValid()) {
             return $this->redirect($this->generateUrl('kphpug_questionnaire_answer_confirmation', array(), true));
         } else {
             return $this->render('KPHPUGQuestionnaireBundle:Answer:input.html.twig', array(
                 'form' => $form->createView(),
+                'formErrors' => true,
             ));
         }
     }
@@ -88,6 +112,7 @@ class AnswerController extends Controller
     {
         return $this->render('KPHPUGQuestionnaireBundle:Answer:confirmation.html.twig', array(
             'form' => $this->createFormBuilder()->getForm()->createView(),
+            'answer' => $this->get('session')->get('answer'),
         ));
     }
 
