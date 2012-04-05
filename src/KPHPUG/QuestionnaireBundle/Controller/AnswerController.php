@@ -44,6 +44,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 
 use KPHPUG\QuestionnaireBundle\Domain\Entity\AnswerFactory;
+use KPHPUG\QuestionnaireBundle\Domain\Service\Answering;
 use KPHPUG\QuestionnaireBundle\Form\Type\AnswerType;
 
 /**
@@ -129,6 +130,10 @@ class AnswerController extends Controller
                 return $this->redirect($this->generateUrl('kphpug_questionnaire_answer_input', array(), true));
             }
 
+            $answering = new Answering($this->get('doctrine')->getEntityManager());
+            $answering->answer($this->get('session')->get('answer'));
+
+            $this->get('session')->remove('answer');
             return $this->redirect($this->generateUrl('kphpug_questionnaire_answer_success', array(), true));
         } else {
             return $this->render('KPHPUGQuestionnaireBundle:Answer:confirmation.html.twig', array(
