@@ -49,6 +49,13 @@ use Doctrine\ORM\EntityRepository;
  */
 class AnswerRepository extends EntityRepository
 {
+    /**
+     * @param \KPHPUG\QuestionnaireBundle\Domain\Entity\Answer $answer
+     */
+    public function add(Answer $answer)
+    {
+        $this->getEntityManager()->persist($answer);
+    }
 }
 
 /*
