@@ -36,7 +36,7 @@
  * @since      File available since Release 0.1.0
  */
 
-namespace KPHPUG\QuestionnaireBundle\Tests\Domain\Service;
+namespace KPHPUG\QuestionnaireBundle\Tests\Controller;
 
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
