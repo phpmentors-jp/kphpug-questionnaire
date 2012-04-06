@@ -4,7 +4,10 @@
     },
     "autoload": {
         "psr-0": {
-            "KPHPUG\\QuestionnaireBundle": "src/"
+            "KPHPUG\\QuestionnaireBundle": "src/",
+            "Doctrine\\Common": "vendor/doctrine-common/lib/",
+            "Doctrine\\DBAL": "vendor/doctrine-dbal/lib/",
+            "Doctrine\\ORM": "vendor/doctrine/lib/"
         }
     }
 }
