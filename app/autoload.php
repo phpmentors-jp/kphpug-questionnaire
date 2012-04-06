@@ -1,5 +1,7 @@
 <?php
 
+require __DIR__ . '/../vendor/.composer/autoload.php';
+
 use Symfony\Component\ClassLoader\UniversalClassLoader;
 use Doctrine\Common\Annotations\AnnotationRegistry;
 
