@@ -37,6 +37,7 @@
  */
 
 require __DIR__ . '/../../../../bootstrap.php';
+require __DIR__ . '/Controller/bootstrap.php';
 
 require_once 'Phake.php';
 
