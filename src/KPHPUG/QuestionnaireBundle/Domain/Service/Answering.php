@@ -67,14 +67,22 @@ class Answering
     /**
      * @param \KPHPUG\QuestionnaireBundle\Domain\Entity\Answer $answer
      * @param array $questionnaireItems
+     * @throw \Exception
      */
     public function answer(Answer $answer)
     {
-        foreach ($answer->getAnswerDetails() as $answerDetail) { /* @var $answerDetail \KPHPUG\QuestionnaireBundle\Domain\Entity\AnswerDetail */
-            $answerDetail->setQuestionnaireItem($this->questionnaireItemRepository()->find($answerDetail->getQuestionnaireItem()->getId()));
+        $this->entityManager->getConnection()->beginTransaction();
+        try {
+            foreach ($answer->getAnswerDetails() as $answerDetail) { /* @var $answerDetail \KPHPUG\QuestionnaireBundle\Domain\Entity\AnswerDetail */
+                $answerDetail->setQuestionnaireItem($this->questionnaireItemRepository()->find($answerDetail->getQuestionnaireItem()->getId()));
+            }
+            $this->answerRepository()->add($answer);
+            $this->entityManager->flush();
+            $this->entityManager->getConnection()->commit();
+        } catch (\Exception $e) {
+            $this->entityManager->getConnection()->rollback();
+            throw $e;
         }
-        $this->answerRepository()->add($answer);
-        $this->entityManager->flush();
     }
 
     /**

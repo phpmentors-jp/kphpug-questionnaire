@@ -86,7 +86,7 @@ class AnswerControllerTest extends WebTestCase
         \Phake::when($databasePlatform)
             ->registerDoctrineTypeMapping($this->anything(), $this->anything())
             ->thenReturn(null);
-        $connection = \Phake::mock('Doctrine\DBAL\Connection');
+        $connection = \Phake::mock('Doctrine\DBAL\Driver\Connection');
         \Phake::when($connection)->getDatabasePlatform()->thenReturn($databasePlatform);
         \Phake::when($this->entityManager)->getConnection()->thenReturn($connection);
     }

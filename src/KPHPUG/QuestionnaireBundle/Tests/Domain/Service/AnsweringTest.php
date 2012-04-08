@@ -77,6 +77,7 @@ class AnsweringTest extends \PHPUnit_Framework_TestCase
             ->thenReturn($answerRepository);
         \Phake::when($entityManager)->getRepository('KPHPUG\QuestionnaireBundle\Domain\Entity\QuestionnaireItem')
             ->thenReturn($questionnaireItemRepository);
+        \Phake::when($entityManager)->getConnection()->thenReturn(\Phake::mock('Doctrine\DBAL\Connection'));
 
         $answering = new Answering($entityManager);
         $answering->answer($answer);
