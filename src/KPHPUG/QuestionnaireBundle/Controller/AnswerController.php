@@ -60,27 +60,20 @@ class AnswerController extends Controller
      * @Route("/")
      * @Method("GET")
      */
-    public function preparationAction()
-    {
-        $answerFactory = new AnswerFactory();
-        $answer = $answerFactory->create(
-            $this->get('doctrine')
-                ->getEntityManager()
-                ->getRepository('KPHPUG\QuestionnaireBundle\Domain\Entity\QuestionnaireItem')
-                ->findBy(array(), array('itemNumber' => 'ASC'))
-        );
-
-        $this->get('session')->set('answer', $answer);
-
-        return $this->forward('KPHPUGQuestionnaireBundle:Answer:input');
-    }
-
-    /**
-     * @Route("/input")
-     * @Method("GET")
-     */
     public function inputAction()
     {
+        if (!$this->get('session')->has('answer')) {
+            $answerFactory = new AnswerFactory();
+            $answer = $answerFactory->create(
+                $this->get('doctrine')
+                    ->getEntityManager()
+                    ->getRepository('KPHPUG\QuestionnaireBundle\Domain\Entity\QuestionnaireItem')
+                    ->findBy(array(), array('itemNumber' => 'ASC'))
+            );
+
+            $this->get('session')->set('answer', $answer);
+        }
+
         return $this->render('KPHPUGQuestionnaireBundle:Answer:input.html.twig', array(
             'form' => $this->createForm(new AnswerType(), $this->get('session')->get('answer'))->createView(),
             'formErrors' => false,
@@ -88,7 +81,7 @@ class AnswerController extends Controller
     }
 
     /**
-     * @Route("/input")
+     * @Route("/")
      * @Method("POST")
      */
     public function inputPostAction()
