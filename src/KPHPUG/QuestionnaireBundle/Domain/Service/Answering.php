@@ -71,11 +71,12 @@ class Answering
      */
     public function answer(Answer $answer)
     {
+        foreach ($answer->getAnswerDetails() as $answerDetail) { /* @var $answerDetail \KPHPUG\QuestionnaireBundle\Domain\Entity\AnswerDetail */
+            $answerDetail->setQuestionnaireItem($this->questionnaireItemRepository()->find($answerDetail->getQuestionnaireItem()->getId()));
+        }
+
         $this->entityManager->getConnection()->beginTransaction();
         try {
-            foreach ($answer->getAnswerDetails() as $answerDetail) { /* @var $answerDetail \KPHPUG\QuestionnaireBundle\Domain\Entity\AnswerDetail */
-                $answerDetail->setQuestionnaireItem($this->questionnaireItemRepository()->find($answerDetail->getQuestionnaireItem()->getId()));
-            }
             $this->answerRepository()->add($answer);
             $this->entityManager->flush();
             $this->entityManager->getConnection()->commit();
