@@ -42,6 +42,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 use KPHPUG\QuestionnaireBundle\Domain\Entity\AnswerFactory;
 use KPHPUG\QuestionnaireBundle\Domain\Service\Answering;
@@ -56,13 +57,17 @@ use KPHPUG\QuestionnaireBundle\Form\Type\AnswerType;
  */
 class AnswerController extends Controller
 {
+    const STATE_INPUT = 'input';
+    const STATE_CONFIRMATION = 'confirmation';
+    const STATE_SUCCESS = 'success';
+
     /**
      * @Route("/")
      * @Method("GET")
      */
     public function inputAction()
     {
-        if (!$this->get('session')->has('answer')) {
+        if (!$this->get('session')->has('state')) {
             $answerFactory = new AnswerFactory();
             $answer = $answerFactory->create(
                 $this->get('doctrine')
@@ -74,6 +79,7 @@ class AnswerController extends Controller
             $this->get('session')->set('answer', $answer);
         }
 
+        $this->get('session')->set('state', self::STATE_INPUT);
         return $this->render('KPHPUGQuestionnaireBundle:Answer:input.html.twig', array(
             'form' => $this->createForm(new AnswerType(), $this->get('session')->get('answer'))->createView(),
             'formErrors' => false,
@@ -83,12 +89,20 @@ class AnswerController extends Controller
     /**
      * @Route("/")
      * @Method("POST")
+     *
+     * @throws \Symfony\Component\HttpKernel\Exception\NotFoundHttpException
      */
     public function inputPostAction()
     {
+        if (!($this->get('session')->has('state')
+              && $this->get('session')->get('state') == self::STATE_INPUT)) {
+            throw $this->createNotFoundException();
+        }
+
         $form = $this->createForm(new AnswerType(), $this->get('session')->get('answer'));
         $form->bindRequest($this->getRequest());
         if ($form->isValid()) {
+            $this->get('session')->set('state', self::STATE_CONFIRMATION);
             return $this->redirect($this->generateUrl('kphpug_questionnaire_answer_confirmation', array(), true));
         } else {
             return $this->render('KPHPUGQuestionnaireBundle:Answer:input.html.twig', array(
@@ -101,9 +115,16 @@ class AnswerController extends Controller
     /**
      * @Route("/confirmation")
      * @Method("GET")
+     *
+     * @throws \Symfony\Component\HttpKernel\Exception\NotFoundHttpException
      */
     public function confirmationAction()
     {
+        if (!($this->get('session')->has('state')
+              && $this->get('session')->get('state') == self::STATE_CONFIRMATION)) {
+            throw $this->createNotFoundException();
+        }
+
         return $this->render('KPHPUGQuestionnaireBundle:Answer:confirmation.html.twig', array(
             'form' => $this->createFormBuilder()->getForm()->createView(),
             'answer' => $this->get('session')->get('answer'),
@@ -113,9 +134,16 @@ class AnswerController extends Controller
     /**
      * @Route("/confirmation")
      * @Method("POST")
+     *
+     * @throws \Symfony\Component\HttpKernel\Exception\NotFoundHttpException
      */
     public function confirmationPostAction()
     {
+        if (!($this->get('session')->has('state')
+              && $this->get('session')->get('state') == self::STATE_CONFIRMATION)) {
+            throw $this->createNotFoundException();
+        }
+
         $form = $this->createFormBuilder()->getForm();
         $form->bindRequest($this->getRequest());
         if ($form->isValid()) {
@@ -123,10 +151,14 @@ class AnswerController extends Controller
                 return $this->redirect($this->generateUrl('kphpug_questionnaire_answer_input', array(), true));
             }
 
+            $answer = $this->get('session')->get('answer');
             $answering = new Answering($this->get('doctrine')->getEntityManager());
-            $answering->answer($this->get('session')->get('answer'));
+            $answering->answer($answer);
 
+            $this->get('session')->remove('state');
             $this->get('session')->remove('answer');
+            $this->get('session')->setFlash('answer', $answer);
+            $this->get('session')->setFlash('state', self::STATE_SUCCESS);
             return $this->redirect($this->generateUrl('kphpug_questionnaire_answer_success', array(), true));
         } else {
             return $this->render('KPHPUGQuestionnaireBundle:Answer:confirmation.html.twig', array(
@@ -141,6 +173,11 @@ class AnswerController extends Controller
      */
     public function successAction()
     {
+        if (!($this->get('session')->hasFlash('state')
+              && $this->get('session')->getFlash('state') == self::STATE_SUCCESS)) {
+            return $this->redirect('http://conference.kphpug.jp/2012');
+        }
+
         return $this->render('KPHPUGQuestionnaireBundle:Answer:success.html.twig');
     }
 }
