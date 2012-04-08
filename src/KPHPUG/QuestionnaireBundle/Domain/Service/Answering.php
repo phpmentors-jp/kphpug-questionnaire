@@ -67,7 +67,7 @@ class Answering
     /**
      * @param \KPHPUG\QuestionnaireBundle\Domain\Entity\Answer $answer
      * @param array $questionnaireItems
-     * @throw \Exception
+     * @throws \Exception
      */
     public function answer(Answer $answer)
     {
