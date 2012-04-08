@@ -42,6 +42,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 use KPHPUG\QuestionnaireBundle\Domain\Entity\AnswerFactory;
@@ -80,10 +81,13 @@ class AnswerController extends Controller
         }
 
         $this->get('session')->set('state', self::STATE_INPUT);
-        return $this->render('KPHPUGQuestionnaireBundle:Answer:input.html.twig', array(
-            'form' => $this->createForm(new AnswerType(), $this->get('session')->get('answer'))->createView(),
-            'formErrors' => false,
-        ));
+        return $this->render('KPHPUGQuestionnaireBundle:Answer:input.html.twig',
+            array(
+                'form' => $this->createForm(new AnswerType(), $this->get('session')->get('answer'))->createView(),
+                'formErrors' => false,
+            ),
+            $this->createResponse()
+        );
     }
 
     /**
@@ -105,10 +109,14 @@ class AnswerController extends Controller
             $this->get('session')->set('state', self::STATE_CONFIRMATION);
             return $this->redirect($this->generateUrl('kphpug_questionnaire_answer_confirmation', array(), true));
         } else {
-            return $this->render('KPHPUGQuestionnaireBundle:Answer:input.html.twig', array(
-                'form' => $form->createView(),
-                'formErrors' => true,
-            ));
+            return $this->render(
+                'KPHPUGQuestionnaireBundle:Answer:input.html.twig',
+                array(
+                    'form' => $form->createView(),
+                    'formErrors' => true,
+                ),
+                $this->createResponse()
+            );
         }
     }
 
@@ -125,10 +133,14 @@ class AnswerController extends Controller
             throw $this->createNotFoundException();
         }
 
-        return $this->render('KPHPUGQuestionnaireBundle:Answer:confirmation.html.twig', array(
-            'form' => $this->createFormBuilder()->getForm()->createView(),
-            'answer' => $this->get('session')->get('answer'),
-        ));
+        return $this->render(
+            'KPHPUGQuestionnaireBundle:Answer:confirmation.html.twig',
+            array(
+                'form' => $this->createFormBuilder()->getForm()->createView(),
+                'answer' => $this->get('session')->get('answer'),
+            ),
+            $this->createResponse()
+        );
     }
 
     /**
@@ -161,9 +173,13 @@ class AnswerController extends Controller
             $this->get('session')->setFlash('state', self::STATE_SUCCESS);
             return $this->redirect($this->generateUrl('kphpug_questionnaire_answer_success', array(), true));
         } else {
-            return $this->render('KPHPUGQuestionnaireBundle:Answer:confirmation.html.twig', array(
-                'form' => $form->createView(),
-            ));
+            return $this->render(
+                'KPHPUGQuestionnaireBundle:Answer:confirmation.html.twig',
+                array(
+                    'form' => $form->createView(),
+                ),
+                $this->createResponse()
+            );
         }
     }
 
@@ -178,7 +194,29 @@ class AnswerController extends Controller
             return $this->redirect('http://conference.kphpug.jp/2012');
         }
 
-        return $this->render('KPHPUGQuestionnaireBundle:Answer:success.html.twig');
+        return $this->render(
+            'KPHPUGQuestionnaireBundle:Answer:success.html.twig',
+            array(
+                'registration' => $this->get('session')->getFlash('registration'),
+            ),
+            $this->createResponse()
+        );
+    }
+
+    /**
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    protected function createResponse()
+    {
+        $response = new Response();
+        $response->headers->addCacheControlDirective('no-store', true);
+        $response->headers->addCacheControlDirective('no-cache', true);
+        $response->headers->addCacheControlDirective('must-revalidate', true);
+        $response->headers->addCacheControlDirective('post-check', 0);
+        $response->headers->addCacheControlDirective('pre-check', 0);
+        $response->headers->set('Pragma', 'no-cache');
+        $response->setExpires(new \DateTime('Thu, 19 Nov 1981 08:52:00 GMT'));
+        return $response;
     }
 }
 
